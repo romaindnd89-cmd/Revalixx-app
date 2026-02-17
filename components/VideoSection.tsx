@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, Play } from 'lucide-react';
 import { VideoItem } from '../types';
 import { DEFAULT_VIDEOS } from '../constants';
+import { db } from '../firebase';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 
 interface VideoSectionProps {
   isAdmin: boolean;
@@ -12,25 +14,26 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
   const [newUrl, setNewUrl] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
-        const saved = localStorage.getItem('revalixx_videos');
-        if (saved) {
-          setVideos(JSON.parse(saved));
-        } else {
-          setVideos(DEFAULT_VIDEOS);
-        }
+        const q = query(collection(db, 'videos'), orderBy('timestamp', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as VideoItem));
+            setVideos(items);
+            setLoading(false);
+        }, (err) => {
+            console.error(err);
+            setVideos([]);
+            setLoading(false);
+        });
+        return () => unsubscribe();
     } catch (e) {
-        console.error("Error loading videos", e);
         setVideos(DEFAULT_VIDEOS);
+        setLoading(false);
     }
   }, []);
-
-  const saveVideos = (items: VideoItem[]) => {
-    setVideos(items);
-    localStorage.setItem('revalixx_videos', JSON.stringify(items));
-  };
 
   const getYoutubeId = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -38,26 +41,32 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
     return (match && match[2].length === 11) ? match[2] : null;
   };
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUrl) return;
 
-    const newItem: VideoItem = {
-      id: Date.now().toString(),
-      url: newUrl,
-      title: newTitle || 'NO TITLE',
-      timestamp: Date.now(),
-    };
+    try {
+        await addDoc(collection(db, 'videos'), {
+          url: newUrl,
+          title: newTitle || 'NO TITLE',
+          timestamp: Date.now(),
+        });
 
-    saveVideos([newItem, ...videos]);
-    setNewUrl('');
-    setNewTitle('');
-    setIsAdding(false);
+        setNewUrl('');
+        setNewTitle('');
+        setIsAdding(false);
+    } catch (e) {
+        alert("Erreur lors de l'ajout de la vidéo");
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Supprimer cette vidéo ?')) {
-      saveVideos(videos.filter(v => v.id !== id));
+      try {
+        await deleteDoc(doc(db, 'videos', id));
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
@@ -107,6 +116,9 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
         </form>
       )}
 
+      {loading ? (
+         <div className="text-center text-red-600 animate-pulse mt-20 text-xl tracking-widest">CONNECTING TO FEED...</div>
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {videos.map((video) => {
           const ytId = getYoutubeId(video.url);
@@ -151,6 +163,7 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 };

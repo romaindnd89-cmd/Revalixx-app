@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, Image as ImageIcon } from 'lucide-react';
 import { PhotoItem } from '../types';
 import { DEFAULT_PHOTOS } from '../constants';
+import { db } from '../firebase';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 
 interface GalleryProps {
   isAdmin: boolean;
@@ -12,46 +14,55 @@ const Gallery: React.FC<GalleryProps> = ({ isAdmin }) => {
   const [newUrl, setNewUrl] = useState('');
   const [newCaption, setNewCaption] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Connexion à Firebase
   useEffect(() => {
     try {
-        const saved = localStorage.getItem('revalixx_photos');
-        if (saved) {
-          setPhotos(JSON.parse(saved));
-        } else {
-          setPhotos(DEFAULT_PHOTOS);
-        }
+        const q = query(collection(db, 'photos'), orderBy('timestamp', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PhotoItem));
+            setPhotos(items);
+            setLoading(false);
+        }, (err) => {
+            console.error("Firebase error (Gallery):", err);
+            // Si erreur, on ne charge rien ou les défauts
+            setPhotos([]); 
+            setLoading(false);
+        });
+        return () => unsubscribe();
     } catch (e) {
-        console.error("Error loading photos", e);
         setPhotos(DEFAULT_PHOTOS);
+        setLoading(false);
     }
   }, []);
 
-  const savePhotos = (items: PhotoItem[]) => {
-    setPhotos(items);
-    localStorage.setItem('revalixx_photos', JSON.stringify(items));
-  };
-
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUrl) return;
 
-    const newItem: PhotoItem = {
-      id: Date.now().toString(),
-      url: newUrl,
-      caption: newCaption || 'REVALIXX MOMENT',
-      timestamp: Date.now(),
-    };
+    try {
+        await addDoc(collection(db, 'photos'), {
+          url: newUrl,
+          caption: newCaption || 'REVALIXX MOMENT',
+          timestamp: Date.now(),
+        });
 
-    savePhotos([newItem, ...photos]);
-    setNewUrl('');
-    setNewCaption('');
-    setIsAdding(false);
+        setNewUrl('');
+        setNewCaption('');
+        setIsAdding(false);
+    } catch (error) {
+        alert("Erreur d'ajout (Vérifiez la connexion DB)");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Supprimer cette photo ?')) {
-      savePhotos(photos.filter(p => p.id !== id));
+  const handleDelete = async (id: string) => {
+    if (confirm('Supprimer cette photo définitivement ?')) {
+      try {
+        await deleteDoc(doc(db, 'photos', id));
+      } catch (error) {
+        console.error("Delete failed", error);
+      }
     }
   };
 
@@ -101,6 +112,9 @@ const Gallery: React.FC<GalleryProps> = ({ isAdmin }) => {
         </form>
       )}
 
+      {loading ? (
+        <div className="text-center text-red-600 animate-pulse mt-20 text-xl tracking-widest">LOADING VOID CONTENT...</div>
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {photos.map((photo) => (
           <div key={photo.id} className="group relative aspect-square overflow-hidden border border-gray-800 bg-gray-900 hover:border-red-600 transition-colors">
@@ -126,9 +140,11 @@ const Gallery: React.FC<GalleryProps> = ({ isAdmin }) => {
           <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-500">
             <ImageIcon size={48} className="mb-4" />
             <p className="text-xl">Aucune photo pour le moment.</p>
+            {isAdmin && <p className="text-sm mt-2 text-red-500">La base de données est vide. Ajoutez du contenu.</p>}
           </div>
         )}
       </div>
+      )}
     </div>
   );
 };

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { REVALIXX_LOGO_URL, DEFAULT_TOUR_DATES } from '../constants';
 import { TourDate } from '../types';
 import { Plus, Trash2 } from 'lucide-react';
+import { db } from '../firebase';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 
 interface HeroProps {
   setView: (v: any) => void;
@@ -12,41 +14,53 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
   const [tourDates, setTourDates] = useState<TourDate[]>([]);
   const [newCity, setNewCity] = useState('');
   const [newEvent, setNewEvent] = useState('');
+  const [loading, setLoading] = useState(true);
 
+  // Connexion temps réel à Firebase
   useEffect(() => {
     try {
-        const saved = localStorage.getItem('revalixx_tour_dates');
-        if (saved) {
-          setTourDates(JSON.parse(saved));
-        } else {
-          setTourDates(DEFAULT_TOUR_DATES);
-        }
+      const q = query(collection(db, 'tour_dates'), orderBy('id', 'desc')); // On peut trier par ID ou ajouter un timestamp
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const dates = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TourDate));
+        setTourDates(dates.length > 0 ? dates : []);
+        setLoading(false);
+      }, (error) => {
+        console.error("Erreur Firebase (Dates):", error);
+        // Fallback pour éviter l'écran blanc si pas de config
+        setTourDates(DEFAULT_TOUR_DATES); 
+        setLoading(false);
+      });
+      return () => unsubscribe();
     } catch (e) {
-        console.error("Error loading tour dates", e);
-        setTourDates(DEFAULT_TOUR_DATES);
+      console.log("Firebase non configuré");
+      setTourDates(DEFAULT_TOUR_DATES);
+      setLoading(false);
     }
   }, []);
 
-  const saveDates = (items: TourDate[]) => {
-    setTourDates(items);
-    localStorage.setItem('revalixx_tour_dates', JSON.stringify(items));
-  };
-
-  const handleAddDate = () => {
+  const handleAddDate = async () => {
     if (!newCity || !newEvent) return;
-    const newDate: TourDate = {
-      id: Date.now().toString(),
-      city: newCity.toUpperCase(),
-      event: newEvent.toUpperCase(),
-      active: true
-    };
-    saveDates([...tourDates, newDate]);
-    setNewCity('');
-    setNewEvent('');
+    try {
+      await addDoc(collection(db, 'tour_dates'), {
+        city: newCity.toUpperCase(),
+        event: newEvent.toUpperCase(),
+        active: true,
+        // Astuce: utiliser Date.now() comme ID pour le tri si besoin, ou laisser Firestore gérer
+        timestamp: Date.now() 
+      });
+      setNewCity('');
+      setNewEvent('');
+    } catch (error) {
+      alert("Erreur: Impossible d'ajouter (Vérifiez votre config Firebase)");
+    }
   };
 
-  const handleDeleteDate = (id: string) => {
-    saveDates(tourDates.filter(d => d.id !== id));
+  const handleDeleteDate = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'tour_dates', id));
+    } catch (error) {
+      console.error("Error deleting date", error);
+    }
   };
 
   return (
@@ -109,9 +123,11 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
         </div>
 
         {/* Dynamic Tour Dates */}
-        <div className="flex flex-col items-center gap-2 mb-8 relative z-10 w-full">
-            {tourDates.map((date) => (
-                <div key={date.id} className="flex items-center gap-4 text-xs tracking-[0.2em] text-gray-600 font-mono group">
+        <div className="flex flex-col items-center gap-2 mb-8 relative z-10 w-full min-h-[50px]">
+            {loading ? (
+                <div className="text-red-900 animate-pulse text-xs tracking-widest">LOADING TRANSMISSIONS...</div>
+            ) : tourDates.map((date) => (
+                <div key={date.id} className="flex items-center gap-4 text-xs tracking-[0.2em] text-gray-600 font-mono group animate-fade-in">
                     <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_red]"></span>
                     <span className="group-hover:text-red-400 transition-colors font-bold uppercase tracking-[0.2em]">NEXT: {date.city} — {date.event}</span>
                     {isAdmin && (
