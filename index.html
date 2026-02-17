@@ -4,21 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>REVALIXX | HARD TECHNO</title>
-    <!-- FIX: Shim process for browser environments and enforce Native DOMException -->
     <script>
+      // Utilisation explicite de la DOMException native pour éviter les warnings
+      window.DOMException = window.DOMException || Object;
       window.global = window;
-      
-      // Fix for "Use your platform's native DOMException"
-      // We explicitly ensure the browser's native DOMException is used
-      if (typeof DOMException !== 'undefined') {
-        window.DOMException = window.DOMException;
-      }
-
-      window.process = {
-        env: {
-          NODE_ENV: 'production'
-        }
-      };
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,43 +24,25 @@
         font-family: 'Michroma', sans-serif;
         letter-spacing: 0.05em;
       }
-      ::-webkit-scrollbar {
-        width: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #0a0a0a;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #333;
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #dc2626;
-      }
-      .neon-text {
-        text-shadow: 0 0 10px rgba(220, 38, 38, 0.7), 0 0 20px rgba(220, 38, 38, 0.5);
-      }
-      .chaos-bg {
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-      }
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #0a0a0a; }
+      ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #dc2626; }
+      .neon-text { text-shadow: 0 0 10px rgba(220, 38, 38, 0.7), 0 0 20px rgba(220, 38, 38, 0.5); }
       
       @keyframes aura-pulse {
         0% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
         50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.6; }
         100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
       }
-      .animate-aura-pulse {
-        animation: aura-pulse 6s infinite ease-in-out;
-      }
+      .animate-aura-pulse { animation: aura-pulse 6s infinite ease-in-out; }
 
       @keyframes breathe {
         0% { transform: translate(-50%, -50%) scale(1); opacity: 0.15; }
         50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.3; }
         100% { transform: translate(-50%, -50%) scale(1); opacity: 0.15; }
       }
-      .animate-breathe {
-        animation: breathe 8s infinite ease-in-out;
-      }
+      .animate-breathe { animation: breathe 8s infinite ease-in-out; }
 
       @keyframes scan {
         0% { top: -10%; opacity: 0; }
@@ -80,36 +51,17 @@
         100% { top: 110%; opacity: 0; }
       }
       .scanline {
-        position: fixed;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: rgba(220, 38, 38, 0.4);
-        box-shadow: 0 0 5px rgba(220, 38, 38, 0.3);
-        z-index: 9999;
-        pointer-events: none;
-        animation: scan 12s linear infinite;
-        opacity: 0.15;
+        position: fixed; left: 0; width: 100%; height: 2px;
+        background: rgba(220, 38, 38, 0.4); z-index: 9999;
+        pointer-events: none; animation: scan 12s linear infinite; opacity: 0.15;
       }
 
       @keyframes dying-light {
-        0% { opacity: 1; filter: brightness(1.2) contrast(1.2); }
-        5% { opacity: 0.8; filter: brightness(0.9); }
-        6% { opacity: 1; filter: brightness(1.2) contrast(1.2); }
-        25% { opacity: 1; filter: brightness(1.2); }
-        26% { opacity: 0.7; filter: brightness(0.8); } 
-        27% { opacity: 1; filter: brightness(1.2); }
-        50% { opacity: 1; filter: brightness(1.2); }
-        70% { opacity: 0.8; filter: brightness(0.9); }
-        71% { opacity: 1; filter: brightness(1.3); }
-        72% { opacity: 0.7; filter: brightness(0.8); }
-        73% { opacity: 1; filter: brightness(1.2); }
-        100% { opacity: 1; filter: brightness(1.2) contrast(1.2); }
+        0%, 100% { opacity: 1; filter: brightness(1.2); }
+        25%, 70% { opacity: 0.8; }
+        26%, 71% { opacity: 1; filter: brightness(1.3); }
       }
-      
-      .animate-dying-light {
-        animation: dying-light 5s infinite steps(1, start);
-      }
+      .animate-dying-light { animation: dying-light 5s infinite steps(1); }
     </style>
   <script type="importmap">
 {
@@ -118,14 +70,15 @@
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/",
     "lucide-react": "https://esm.sh/lucide-react@^0.571.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4"
   }
 }
 </script>
 </head>
   <body>
     <div id="root"></div>
-    <!-- CRITICAL: Entry point for Vite/Bundlers -->
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

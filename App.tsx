@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, Suspense, ReactNode, ErrorInfo } from 'react';
 import Navbar from './components/Navbar';
 import ChaosBackground from './components/ChaosBackground';
@@ -21,6 +22,7 @@ interface ErrorBoundaryState {
 }
 
 // Error Boundary to catch crashes and allow reset
+// Fix: Use React.Component explicitly to ensure props and state types are correctly recognized by the TS compiler
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
