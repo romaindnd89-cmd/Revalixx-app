@@ -8,6 +8,12 @@ const BioAI: React.FC = () => {
   const [promptTopic, setPromptTopic] = useState('');
 
   const generateBio = async () => {
+    // Safety check: ensure API key exists before creating instance
+    if (!process.env.API_KEY) {
+        setBio("Erreur: Clé API manquante. L'IA ne peut pas démarrer.");
+        return;
+    }
+
     setLoading(true);
     setBio('');
     
@@ -26,7 +32,7 @@ const BioAI: React.FC = () => {
       setBio(response.text || "Erreur de génération.");
     } catch (error) {
       console.error(error);
-      setBio("Erreur lors de la connexion à l'IA. Vérifiez la clé API.");
+      setBio("Erreur lors de la connexion à l'IA.");
     } finally {
       setLoading(false);
     }

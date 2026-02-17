@@ -15,33 +15,34 @@ const ChaosBackground: React.FC = () => {
     canvas.width = width;
     canvas.height = height;
 
-    const particles: {x: number, y: number, vx: number, vy: number, alpha: number}[] = [];
-    const particleCount = 60;
+    const particles: {x: number, y: number, vx: number, vy: number, alpha: number, size: number}[] = [];
+    const particleCount = 100; // Increased for more chaos
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 2,
-        vy: (Math.random() - 0.5) * 2,
-        alpha: Math.random()
+        vx: (Math.random() - 0.5) * 4, // Faster movement
+        vy: (Math.random() - 0.5) * 4,
+        alpha: Math.random(),
+        size: Math.random() * 2
       });
     }
 
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
       
-      // Draw background fog/gradient
+      // Draw background fog/gradient - Darker red
       const gradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width);
-      gradient.addColorStop(0, 'rgba(30, 0, 0, 0.4)');
-      gradient.addColorStop(0.5, 'rgba(10, 0, 0, 0.8)');
+      gradient.addColorStop(0, 'rgba(40, 0, 0, 0.4)');
+      gradient.addColorStop(0.5, 'rgba(20, 0, 0, 0.8)');
       gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
       // Draw chaotic particles
-      ctx.strokeStyle = 'rgba(220, 38, 38, 0.5)'; // Red-600
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(220, 38, 38, 0.6)'; // Red-600
+      ctx.fillStyle = 'rgba(220, 38, 38, 0.8)';
 
       particles.forEach(p => {
         p.x += p.vx;
@@ -51,17 +52,34 @@ const ChaosBackground: React.FC = () => {
         if (p.x < 0 || p.x > width) p.vx *= -1;
         if (p.y < 0 || p.y > height) p.vy *= -1;
 
+        // Draw particle
         ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x + p.vx * 10, p.y + p.vy * 10); // Streak effect
-        ctx.stroke();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Connect particles if close
+        particles.forEach(p2 => {
+            const dx = p.x - p2.x;
+            const dy = p.y - p2.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 100) {
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(220, 38, 38, ${0.2 * (1 - distance / 100)})`;
+                ctx.lineWidth = 0.5;
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.stroke();
+            }
+        });
 
         // Random glitch line
-        if (Math.random() > 0.98) {
+        if (Math.random() > 0.95) {
           ctx.beginPath();
-          ctx.strokeStyle = `rgba(255, 0, 0, ${Math.random() * 0.5})`;
+          ctx.lineWidth = Math.random() * 2;
+          ctx.strokeStyle = `rgba(255, 0, 0, ${Math.random() * 0.4})`;
           ctx.moveTo(p.x, p.y);
-          ctx.lineTo(Math.random() * width, Math.random() * height);
+          ctx.lineTo(p.x + (Math.random() - 0.5) * 200, p.y + (Math.random() - 0.5) * 200);
           ctx.stroke();
         }
       });

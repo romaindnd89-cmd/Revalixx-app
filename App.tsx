@@ -4,11 +4,12 @@ import ChaosBackground from './components/ChaosBackground';
 import Hero from './components/Hero';
 import Gallery from './components/Gallery';
 import VideoSection from './components/VideoSection';
-// Lazy load BioAI to prevent initial load crashes if SDK fails or process is undefined
-const BioAI = React.lazy(() => import('./components/BioAI'));
 import AdminModal from './components/AdminModal';
 import { ViewState } from './types';
 import { Lock, Unlock, AlertTriangle } from 'lucide-react';
+
+// Lazy load BioAI to prevent initial load crashes if SDK fails or process is undefined
+const BioAI = React.lazy(() => import('./components/BioAI'));
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -21,6 +22,8 @@ interface ErrorBoundaryState {
 
 // Error Boundary to catch crashes and allow reset
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  public state: ErrorBoundaryState;
+
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };

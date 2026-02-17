@@ -52,29 +52,31 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 pt-16">
       
-      {/* Top Ambient Light */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[50vh] bg-gradient-to-b from-red-900/20 to-transparent blur-[100px] pointer-events-none z-0"></div>
+      {/* Top Ambient Light - More Intense Red */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[60vh] bg-gradient-to-b from-red-800/30 to-transparent blur-[120px] pointer-events-none z-0"></div>
 
       <div className="relative z-10 w-full max-w-6xl flex flex-col items-center animate-fade-in text-center">
         
         {/* Top Text: UNDERGROUND RESISTANCE */}
         <div className="mb-8 md:mb-12 w-full flex items-center justify-center gap-4 opacity-70">
-             <div className="h-[1px] w-12 md:w-32 bg-gradient-to-r from-transparent to-gray-600"></div>
-             <span className="text-[10px] md:text-xs tracking-[0.6em] text-gray-400 uppercase font-mono text-shadow-sm">
+             <div className="h-[1px] w-12 md:w-32 bg-gradient-to-r from-transparent to-red-600"></div>
+             <span className="text-[10px] md:text-xs tracking-[0.6em] text-red-500 uppercase font-mono text-shadow-sm">
                 Underground Resistance
              </span>
-             <div className="h-[1px] w-12 md:w-32 bg-gradient-to-l from-transparent to-gray-600"></div>
+             <div className="h-[1px] w-12 md:w-32 bg-gradient-to-l from-transparent to-red-600"></div>
         </div>
 
-        {/* Logo */}
+        {/* Logo with Chaos Neon */}
         <div className="relative group cursor-pointer mb-8" onClick={() => setView('gallery')}>
-            <div className="absolute top-1/2 left-1/2 w-[200%] h-[200%] bg-red-900/40 blur-[130px] rounded-full animate-breathe pointer-events-none"></div>
-            <div className="absolute top-1/2 left-1/2 w-[140%] h-[140%] bg-red-700/60 blur-[90px] rounded-full animate-aura-pulse pointer-events-none mix-blend-screen"></div>
+            {/* The Neon Red Chaos Behind */}
+            <div className="absolute top-1/2 left-1/2 w-[180%] h-[180%] bg-red-600/50 blur-[100px] rounded-full animate-breathe pointer-events-none mix-blend-screen"></div>
+            <div className="absolute top-1/2 left-1/2 w-[120%] h-[120%] bg-red-500/40 blur-[60px] rounded-full animate-aura-pulse pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full border-[100px] border-transparent shadow-[0_0_100px_rgba(220,38,38,0.8)] rounded-full opacity-20 pointer-events-none"></div>
             
             <img 
               src={REVALIXX_LOGO_URL} 
               alt="REVALIXX LOGO" 
-              className="relative z-10 w-80 md:w-[32rem] lg:w-[42rem] object-contain drop-shadow-[0_0_50px_rgba(220,38,38,0.4)] hover:scale-105 transition-transform duration-700 animate-dying-light"
+              className="relative z-10 w-80 md:w-[32rem] lg:w-[42rem] object-contain drop-shadow-[0_0_50px_rgba(255,0,0,0.6)] hover:scale-105 transition-transform duration-700 animate-dying-light"
             />
         </div>
 
@@ -104,9 +106,9 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
 
             <button 
                 onClick={() => setView('videos')}
-                className="flex-1 border border-gray-800 bg-black/40 backdrop-blur-sm py-3 px-4 hover:border-gray-500 transition-colors duration-300 group"
+                className="flex-1 border border-red-900/50 bg-black/40 backdrop-blur-sm py-3 px-4 hover:border-red-500 transition-colors duration-300 group"
             >
-                <span className="brand-font text-sm md:text-base text-gray-400 group-hover:text-white tracking-[0.15em] uppercase">
+                <span className="brand-font text-sm md:text-base text-gray-400 group-hover:text-red-500 tracking-[0.15em] uppercase">
                     Video Transmissions
                 </span>
             </button>
@@ -116,8 +118,8 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
         <div className="flex flex-col items-center gap-2 mb-8 relative z-10 w-full">
             {tourDates.map((date) => (
                 <div key={date.id} className="flex items-center gap-4 text-xs tracking-[0.2em] text-gray-600 font-mono group">
-                    <span className="w-1.5 h-1.5 bg-red-700 rounded-full animate-pulse"></span>
-                    <span>NEXT: {date.city} — {date.event}</span>
+                    <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_red]"></span>
+                    <span className="group-hover:text-red-400 transition-colors">NEXT: {date.city} — {date.event}</span>
                     {isAdmin && (
                         <button onClick={() => handleDeleteDate(date.id)} className="text-red-500 hover:text-white ml-2">
                             <Trash2 size={12} />
@@ -152,7 +154,7 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
             <h1 className="brand-font text-2xl md:text-4xl font-bold text-white tracking-wide mb-2">
                 NO COMPROMISE.
             </h1>
-            <h1 className="brand-font text-2xl md:text-4xl font-bold text-red-600 tracking-wide drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]">
+            <h1 className="brand-font text-2xl md:text-4xl font-bold text-red-600 tracking-wide drop-shadow-[0_0_20px_rgba(220,38,38,0.9)]">
                 JUST VIOLENCE.
             </h1>
         </div>
