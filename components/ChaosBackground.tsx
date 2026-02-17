@@ -16,33 +16,34 @@ const ChaosBackground: React.FC = () => {
     canvas.height = height;
 
     const particles: {x: number, y: number, vx: number, vy: number, alpha: number, size: number}[] = [];
-    const particleCount = 100; // Increased for more chaos
+    // Adjusted particle count for performance and visual chaos
+    const particleCount = window.innerWidth < 768 ? 80 : 150;
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 4, // Faster movement
-        vy: (Math.random() - 0.5) * 4,
+        vx: (Math.random() - 0.5) * 5,
+        vy: (Math.random() - 0.5) * 5,
         alpha: Math.random(),
-        size: Math.random() * 2
+        size: Math.random() * 2.5
       });
     }
 
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
       
-      // Draw background fog/gradient - Darker red
+      // Draw background fog/gradient - Intense Red/Darkness
       const gradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width);
-      gradient.addColorStop(0, 'rgba(40, 0, 0, 0.4)');
-      gradient.addColorStop(0.5, 'rgba(20, 0, 0, 0.8)');
+      gradient.addColorStop(0, 'rgba(50, 0, 0, 0.4)'); // Deep red center
+      gradient.addColorStop(0.6, 'rgba(20, 0, 0, 0.7)');
       gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
       // Draw chaotic particles
       ctx.strokeStyle = 'rgba(220, 38, 38, 0.6)'; // Red-600
-      ctx.fillStyle = 'rgba(220, 38, 38, 0.8)';
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.8)'; // Bright Red
 
       particles.forEach(p => {
         p.x += p.vx;
@@ -63,21 +64,21 @@ const ChaosBackground: React.FC = () => {
             const dy = p.y - p2.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance < 100) {
+            if (distance < 110) {
                 ctx.beginPath();
-                ctx.strokeStyle = `rgba(220, 38, 38, ${0.2 * (1 - distance / 100)})`;
-                ctx.lineWidth = 0.5;
+                ctx.strokeStyle = `rgba(220, 38, 38, ${0.25 * (1 - distance / 110)})`;
+                ctx.lineWidth = 0.6;
                 ctx.moveTo(p.x, p.y);
                 ctx.lineTo(p2.x, p2.y);
                 ctx.stroke();
             }
         });
 
-        // Random glitch line
-        if (Math.random() > 0.95) {
+        // Random glitch line (Lightning effect) - Occasional flicker
+        if (Math.random() > 0.99) {
           ctx.beginPath();
           ctx.lineWidth = Math.random() * 2;
-          ctx.strokeStyle = `rgba(255, 0, 0, ${Math.random() * 0.4})`;
+          ctx.strokeStyle = `rgba(255, 0, 0, ${Math.random() * 0.5})`;
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(p.x + (Math.random() - 0.5) * 200, p.y + (Math.random() - 0.5) * 200);
           ctx.stroke();
@@ -95,9 +96,12 @@ const ChaosBackground: React.FC = () => {
     };
 
     window.addEventListener('resize', handleResize);
-    animate();
+    const animationId = requestAnimationFrame(animate);
 
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+        window.removeEventListener('resize', handleResize);
+        cancelAnimationFrame(animationId);
+    };
   }, []);
 
   return (

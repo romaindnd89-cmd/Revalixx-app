@@ -4,9 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>REVALIXX | HARD TECHNO</title>
-    <!-- FIX: Shim process for browser environments (needed for some libs) -->
+    <!-- FIX: Shim process for browser environments and enforce Native DOMException -->
     <script>
       window.global = window;
+      
+      // Fix for "Use your platform's native DOMException"
+      // We explicitly ensure the browser's native DOMException is used
+      if (typeof DOMException !== 'undefined') {
+        window.DOMException = window.DOMException;
+      }
+
       window.process = {
         env: {
           NODE_ENV: 'production'

@@ -8,11 +8,11 @@ const BioAI: React.FC = () => {
   const [promptTopic, setPromptTopic] = useState('');
 
   const generateBio = async () => {
-    // Use process.env.API_KEY directly as per @google/genai guidelines.
+    // Robust access to API Key
     const apiKey = process.env.API_KEY;
 
     if (!apiKey) {
-        setBio("Erreur: Clé API manquante. Ajoutez API_KEY dans vos variables d'environnement.");
+        setBio("Erreur: Clé API manquante. L'IA nécessite une clé API valide dans les variables d'environnement.");
         return;
     }
 
@@ -34,7 +34,7 @@ const BioAI: React.FC = () => {
       setBio(response.text || "Erreur de génération.");
     } catch (error) {
       console.error(error);
-      setBio("Erreur lors de la connexion à l'IA. Vérifiez la console pour les détails.");
+      setBio("Erreur lors de la connexion à l'IA. Vérifiez la console.");
     } finally {
       setLoading(false);
     }

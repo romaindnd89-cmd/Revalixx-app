@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, ReactNode, ErrorInfo } from 'react';
 import Navbar from './components/Navbar';
 import ChaosBackground from './components/ChaosBackground';
 import Hero from './components/Hero';
@@ -12,7 +12,7 @@ import { Lock, Unlock, AlertTriangle } from 'lucide-react';
 const BioAI = React.lazy(() => import('./components/BioAI'));
 
 interface ErrorBoundaryProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 interface ErrorBoundaryState {
@@ -31,7 +31,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
   }
 
