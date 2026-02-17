@@ -12,7 +12,7 @@ import { Lock, Unlock, AlertTriangle } from 'lucide-react';
 const BioAI = React.lazy(() => import('./components/BioAI'));
 
 interface ErrorBoundaryProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 interface ErrorBoundaryState {
@@ -22,8 +22,6 @@ interface ErrorBoundaryState {
 
 // Error Boundary to catch crashes and allow reset
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  public state: ErrorBoundaryState;
-
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };

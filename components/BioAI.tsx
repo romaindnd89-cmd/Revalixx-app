@@ -8,9 +8,11 @@ const BioAI: React.FC = () => {
   const [promptTopic, setPromptTopic] = useState('');
 
   const generateBio = async () => {
-    // Safety check: ensure API key exists before creating instance
-    if (!process.env.API_KEY) {
-        setBio("Erreur: Clé API manquante. L'IA ne peut pas démarrer.");
+    // Use process.env.API_KEY directly as per @google/genai guidelines.
+    const apiKey = process.env.API_KEY;
+
+    if (!apiKey) {
+        setBio("Erreur: Clé API manquante. Ajoutez API_KEY dans vos variables d'environnement.");
         return;
     }
 
@@ -18,7 +20,7 @@ const BioAI: React.FC = () => {
     setBio('');
     
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: apiKey });
       const prompt = `Write a short, aggressive, chaotic and powerful biography (in French) for a Hard Techno DJ duo named 'Revalixx'. 
       Tone: Industrial, dark, rave, underground. 
       Topic focus: ${promptTopic || 'Destroying dancefloors, high BPM, dark atmosphere'}. 
@@ -32,7 +34,7 @@ const BioAI: React.FC = () => {
       setBio(response.text || "Erreur de génération.");
     } catch (error) {
       console.error(error);
-      setBio("Erreur lors de la connexion à l'IA.");
+      setBio("Erreur lors de la connexion à l'IA. Vérifiez la console pour les détails.");
     } finally {
       setLoading(false);
     }
