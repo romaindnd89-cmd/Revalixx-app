@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { REVALIXX_LOGO_URL, DEFAULT_TOUR_DATES } from '../constants';
 import { TourDate } from '../types';
-import { Plus, Trash2, Save } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 interface HeroProps {
   setView: (v: any) => void;
@@ -14,11 +14,16 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
   const [newEvent, setNewEvent] = useState('');
 
   useEffect(() => {
-    const saved = localStorage.getItem('revalixx_tour_dates');
-    if (saved) {
-      setTourDates(JSON.parse(saved));
-    } else {
-      setTourDates(DEFAULT_TOUR_DATES);
+    try {
+        const saved = localStorage.getItem('revalixx_tour_dates');
+        if (saved) {
+          setTourDates(JSON.parse(saved));
+        } else {
+          setTourDates(DEFAULT_TOUR_DATES);
+        }
+    } catch (e) {
+        console.error("Error loading tour dates", e);
+        setTourDates(DEFAULT_TOUR_DATES);
     }
   }, []);
 

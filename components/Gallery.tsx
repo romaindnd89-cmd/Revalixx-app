@@ -14,11 +14,16 @@ const Gallery: React.FC<GalleryProps> = ({ isAdmin }) => {
   const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('revalixx_photos');
-    if (saved) {
-      setPhotos(JSON.parse(saved));
-    } else {
-      setPhotos(DEFAULT_PHOTOS);
+    try {
+        const saved = localStorage.getItem('revalixx_photos');
+        if (saved) {
+          setPhotos(JSON.parse(saved));
+        } else {
+          setPhotos(DEFAULT_PHOTOS);
+        }
+    } catch (e) {
+        console.error("Error loading photos", e);
+        setPhotos(DEFAULT_PHOTOS);
     }
   }, []);
 

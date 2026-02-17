@@ -8,11 +8,6 @@ const BioAI: React.FC = () => {
   const [promptTopic, setPromptTopic] = useState('');
 
   const generateBio = async () => {
-    if (!process.env.API_KEY) {
-        setBio("Erreur: Clé API manquante. Configurez API_KEY dans l'environnement.");
-        return;
-    }
-    
     setLoading(true);
     setBio('');
     

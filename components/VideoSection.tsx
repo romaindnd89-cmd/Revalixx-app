@@ -14,11 +14,16 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
   const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('revalixx_videos');
-    if (saved) {
-      setVideos(JSON.parse(saved));
-    } else {
-      setVideos(DEFAULT_VIDEOS);
+    try {
+        const saved = localStorage.getItem('revalixx_videos');
+        if (saved) {
+          setVideos(JSON.parse(saved));
+        } else {
+          setVideos(DEFAULT_VIDEOS);
+        }
+    } catch (e) {
+        console.error("Error loading videos", e);
+        setVideos(DEFAULT_VIDEOS);
     }
   }, []);
 
