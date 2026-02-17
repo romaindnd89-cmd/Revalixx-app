@@ -66,18 +66,18 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
              <div className="h-[1px] w-12 md:w-32 bg-gradient-to-l from-transparent to-red-600"></div>
         </div>
 
-        {/* Logo Container with DIFFUSE RED AURA (NO MORE OVAL) */}
-        <div className="relative group cursor-pointer mb-12" onClick={() => setView('gallery')}>
+        {/* Logo Container with FIXED CIRCULAR AURA (NO MORE OVAL) */}
+        <div className="relative group cursor-pointer mb-12 flex items-center justify-center" onClick={() => setView('gallery')}>
             
-            {/* PURE CIRCULAR RED AURA LAYERS - DIFFUSE & INTENSE */}
-            {/* 1. Large Outer Glow (Diffuse) - Forced circle with aspect-square */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 aspect-square w-[180%] bg-red-600/20 rounded-full blur-[160px] animate-aura-pulse pointer-events-none z-0"></div>
+            {/* PURE CIRCULAR RED AURA LAYERS - FIXED DIMENSIONS PREVENT OVALS */}
+            {/* 1. Large Outer Glow (Diffuse) */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[900px] aspect-square bg-red-600/20 rounded-full blur-[160px] animate-aura-pulse pointer-events-none z-0"></div>
             
             {/* 2. Middle Glow (Medium Density) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 aspect-square w-[120%] bg-red-500/30 rounded-full blur-[100px] animate-breathe pointer-events-none z-0"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] md:w-[600px] aspect-square bg-red-500/30 rounded-full blur-[100px] animate-breathe pointer-events-none z-0"></div>
             
             {/* 3. Inner Core Glow (Intense Center) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 aspect-square w-96 bg-red-600/40 rounded-full blur-[60px] animate-pulse pointer-events-none z-0"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] md:w-[400px] aspect-square bg-red-600/40 rounded-full blur-[60px] animate-pulse pointer-events-none z-0"></div>
             
             <img 
               src={REVALIXX_LOGO_URL} 
@@ -125,7 +125,7 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
             {tourDates.map((date) => (
                 <div key={date.id} className="flex items-center gap-4 text-xs tracking-[0.2em] text-gray-600 font-mono group">
                     <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_red]"></span>
-                    <span className="group-hover:text-red-400 transition-colors font-bold uppercase">NEXT: {date.city} — {date.event}</span>
+                    <span className="group-hover:text-red-400 transition-colors font-bold uppercase tracking-[0.2em]">NEXT: {date.city} — {date.event}</span>
                     {isAdmin && (
                         <button onClick={() => handleDeleteDate(date.id)} className="text-red-500 hover:text-white ml-2">
                             <Trash2 size={12} />

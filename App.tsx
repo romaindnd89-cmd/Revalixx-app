@@ -1,4 +1,3 @@
-
 import React, { Component, useState, useEffect, Suspense, ReactNode, ErrorInfo } from 'react';
 import Navbar from './components/Navbar';
 import ChaosBackground from './components/ChaosBackground';
@@ -21,12 +20,15 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-// Fix: Changed 'React.Component' to 'Component' and removed 'override' to resolve TS base class detection issues
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  public state: ErrorBoundaryState = {
-    hasError: false,
-    error: null
-  };
+// Fixed: Explicitly using React.Component with a constructor ensures that 'this.props' is correctly initialized and typed within the class instance.
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null
+    };
+  }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
@@ -59,7 +61,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         </div>
       );
     }
-    // Fix: 'this.props' is now correctly recognized as ErrorBoundary properly extends Component
+    
     return this.props.children;
   }
 }
