@@ -21,17 +21,12 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-// Fix: Explicitly extending React.Component and declaring state property to resolve "Property does not exist" TS errors.
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  // Explicit declaration of the state property
-  public override state: ErrorBoundaryState = {
+// Fix: Changed 'React.Component' to 'Component' and removed 'override' to resolve TS base class detection issues
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  public state: ErrorBoundaryState = {
     hasError: false,
     error: null
   };
-
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-  }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
@@ -42,13 +37,12 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   render() {
-    // Check state for rendering error fallback UI
     if (this.state.hasError) {
       return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black text-red-600 font-mono p-4">
           <div className="text-center max-w-lg border border-red-900/50 p-8 bg-neutral-900/50 backdrop-blur-md rounded-lg shadow-[0_0_50px_rgba(220,38,38,0.2)]">
             <AlertTriangle className="w-16 h-16 mx-auto mb-6 text-red-500 animate-pulse" />
-            <h1 className="text-4xl mb-4 font-bold tracking-widest">SYSTEM FAILURE</h1>
+            <h1 className="text-4xl mb-4 font-bold tracking-widest uppercase">System Failure</h1>
             <p className="text-gray-400 mb-8 text-sm tracking-wider">
               CRITICAL ERROR DETECTED. THE VOID IS UNSTABLE.
             </p>
@@ -57,21 +51,15 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                 localStorage.clear(); 
                 window.location.reload();
               }}
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold tracking-widest uppercase transition-all hover:shadow-[0_0_20px_rgba(220,38,38,0.5)]"
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold tracking-widest uppercase transition-all"
             >
-              HARD RESET (CLEAR DATA)
+              Hard Reset
             </button>
-            <div className="mt-8 p-4 bg-black border border-gray-800 text-left overflow-auto max-h-32">
-                <code className="text-xs text-red-800 break-all">
-                    {this.state.error?.toString() || 'Unknown Error'}
-                </code>
-            </div>
           </div>
         </div>
       );
     }
-
-    // Access props.children safely from the base class
+    // Fix: 'this.props' is now correctly recognized as ErrorBoundary properly extends Component
     return this.props.children;
   }
 }
@@ -146,7 +134,6 @@ const App: React.FC = () => {
 
                 <div className="text-gray-600 text-[10px] tracking-wider font-mono">
                     <p className="mb-2">© 2024 REVALIXX RECORDS. ALL RIGHTS RESERVED.</p>
-                    <p>DEVELOPED FOR ALIXX & DJ REVAXX</p>
                 </div>
                 
                 <div className="mt-8">
