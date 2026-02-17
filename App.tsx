@@ -1,4 +1,5 @@
-import React, { useState, useEffect, Suspense, ReactNode, ErrorInfo, Component } from 'react';
+
+import React, { Component, useState, useEffect, Suspense, ReactNode, ErrorInfo } from 'react';
 import Navbar from './components/Navbar';
 import ChaosBackground from './components/ChaosBackground';
 import Hero from './components/Hero';
@@ -20,14 +21,16 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-// Explicitly extend Component and use constructor to ensure props are correctly bound for TypeScript
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+// Fix: Explicitly extending React.Component and declaring state property to resolve "Property does not exist" TS errors.
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  // Explicit declaration of the state property
+  public override state: ErrorBoundaryState = {
+    hasError: false,
+    error: null
+  };
+
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = {
-      hasError: false,
-      error: null
-    };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
@@ -39,6 +42,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   render() {
+    // Check state for rendering error fallback UI
     if (this.state.hasError) {
       return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black text-red-600 font-mono p-4">
@@ -67,6 +71,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       );
     }
 
+    // Access props.children safely from the base class
     return this.props.children;
   }
 }

@@ -52,31 +52,37 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 pt-16">
       
-      {/* Top Ambient Light - More Intense Red */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[60vh] bg-gradient-to-b from-red-800/40 to-transparent blur-[120px] pointer-events-none z-0"></div>
+      {/* Top Ambient Light - More pronounced red glow from the top */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[50vh] bg-gradient-to-b from-red-600/20 to-transparent blur-[120px] pointer-events-none z-0"></div>
 
       <div className="relative z-10 w-full max-w-6xl flex flex-col items-center animate-fade-in text-center">
         
         {/* Top Text: UNDERGROUND RESISTANCE */}
-        <div className="mb-8 md:mb-12 w-full flex items-center justify-center gap-4 opacity-70">
+        <div className="mb-8 md:mb-12 w-full flex items-center justify-center gap-4 opacity-50">
              <div className="h-[1px] w-12 md:w-32 bg-gradient-to-r from-transparent to-red-600"></div>
-             <span className="text-[10px] md:text-xs tracking-[0.6em] text-red-500 uppercase font-mono text-shadow-sm">
+             <span className="text-[10px] md:text-xs tracking-[0.6em] text-gray-500 uppercase font-mono">
                 Underground Resistance
              </span>
              <div className="h-[1px] w-12 md:w-32 bg-gradient-to-l from-transparent to-red-600"></div>
         </div>
 
-        {/* Logo with Chaos Neon */}
-        <div className="relative group cursor-pointer mb-8" onClick={() => setView('gallery')}>
-            {/* The Neon Red Chaos Behind */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] bg-red-600/30 blur-[80px] rounded-full animate-breathe pointer-events-none mix-blend-screen"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-red-500/20 blur-[40px] rounded-full animate-aura-pulse pointer-events-none"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full border-[2px] border-red-600/10 shadow-[0_0_80px_rgba(220,38,38,0.5)] rounded-full opacity-50 pointer-events-none animate-spin-slow"></div>
+        {/* Logo Container with HEAVILY ENHANCED Aura Effects */}
+        <div className="relative group cursor-pointer mb-12" onClick={() => setView('gallery')}>
+            
+            {/* PRONOUNCED RED AURA LAYERS */}
+            {/* 1. Large Outer Glow (Diffuse) */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] bg-red-600/30 rounded-full blur-[130px] animate-aura-pulse pointer-events-none z-0"></div>
+            
+            {/* 2. Middle Glow (Medium Density) */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100%] h-[100%] bg-red-500/40 rounded-full blur-[80px] animate-breathe pointer-events-none z-0"></div>
+            
+            {/* 3. Inner Core Glow (Intense) */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-red-600/50 rounded-full blur-[40px] animate-pulse pointer-events-none z-0"></div>
             
             <img 
               src={REVALIXX_LOGO_URL} 
               alt="REVALIXX LOGO" 
-              className="relative z-10 w-80 md:w-[32rem] lg:w-[42rem] object-contain drop-shadow-[0_0_30px_rgba(255,0,0,0.8)] hover:scale-105 transition-transform duration-700 animate-dying-light"
+              className="relative z-10 w-80 md:w-[32rem] lg:w-[42rem] object-contain drop-shadow-[0_0_35px_rgba(220,38,38,0.7)] hover:scale-105 transition-transform duration-700 animate-dying-light"
             />
         </div>
 
@@ -93,7 +99,7 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
             </p>
         </div>
 
-        {/* Buttons - TAILLE RÉDUITE */}
+        {/* Buttons */}
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 w-full max-w-[500px] mb-12 px-4 relative z-10">
             <button 
                 onClick={() => setView('gallery')}
@@ -109,7 +115,7 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
                 className="flex-1 border border-red-900/50 bg-black/40 backdrop-blur-sm py-3 px-4 hover:border-red-500 transition-colors duration-300 group"
             >
                 <span className="brand-font text-sm md:text-base text-gray-400 group-hover:text-red-500 tracking-[0.15em] uppercase">
-                    Video Transmissions
+                    Transmissions
                 </span>
             </button>
         </div>
@@ -132,13 +138,13 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
                 <div className="mt-4 flex gap-2 items-center bg-gray-900/50 p-2 rounded border border-gray-800">
                     <input 
                         className="bg-black border border-gray-700 text-white text-xs p-1 w-24" 
-                        placeholder="CITY (LYON)"
+                        placeholder="CITY"
                         value={newCity}
                         onChange={(e) => setNewCity(e.target.value)}
                     />
                     <input 
                         className="bg-black border border-gray-700 text-white text-xs p-1 w-32" 
-                        placeholder="EVENT (RITUAL)"
+                        placeholder="EVENT"
                         value={newEvent}
                         onChange={(e) => setNewEvent(e.target.value)}
                     />
@@ -149,19 +155,19 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
             )}
         </div>
 
-        {/* Slogan - TAILLE RÉDUITE */}
+        {/* Slogan */}
         <div className="flex flex-col items-center leading-tight mb-6 relative z-10">
             <h1 className="brand-font text-2xl md:text-4xl font-bold text-white tracking-wide mb-2">
                 NO COMPROMISE.
             </h1>
-            <h1 className="brand-font text-2xl md:text-4xl font-bold text-red-600 tracking-wide drop-shadow-[0_0_20px_rgba(220,38,38,0.9)]">
+            <h1 className="brand-font text-2xl md:text-4xl font-bold text-red-600 tracking-wide">
                 JUST VIOLENCE.
             </h1>
         </div>
 
         {/* Description */}
         <p className="max-w-xl text-gray-500 text-center text-xs md:text-sm leading-relaxed tracking-wider font-light mb-12 relative z-10 px-4">
-            Revalixx stands at the intersection of industrial noise and rhythmic precision. We curate the sounds that thrive in darkness.
+            Revalixx stands at the intersection of industrial noise and rhythmic precision. Curating sounds that thrive in the shadows.
         </p>
 
       </div>
