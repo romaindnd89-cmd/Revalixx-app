@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, ReactNode, ErrorInfo } from 'react';
+import React, { useState, useEffect, Suspense, ReactNode, ErrorInfo, Component } from 'react';
 import Navbar from './components/Navbar';
 import ChaosBackground from './components/ChaosBackground';
 import Hero from './components/Hero';
@@ -20,12 +20,15 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-// Fix: Use React.Component explicitly to ensure 'props' is properly inherited and recognized by the TypeScript compiler
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  public state: ErrorBoundaryState = {
-    hasError: false,
-    error: null
-  };
+// Explicitly extend Component and use constructor to ensure props are correctly bound for TypeScript
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null
+    };
+  }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
@@ -64,7 +67,6 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
       );
     }
 
-    // Fix: Line 66 - Property 'props' is now correctly recognized as a member of ErrorBoundary
     return this.props.children;
   }
 }
