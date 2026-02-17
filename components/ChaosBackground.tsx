@@ -22,7 +22,7 @@ const ChaosBackground: React.FC = () => {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 7, // Plus rapide pour l'effet Chaos
+        vx: (Math.random() - 0.5) * 7,
         vy: (Math.random() - 0.5) * 7,
         alpha: Math.random(),
         size: Math.random() * 3
@@ -32,15 +32,16 @@ const ChaosBackground: React.FC = () => {
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
       
+      // Much darker gradient to avoid the central "spotlight/oval" effect
       const gradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width);
-      gradient.addColorStop(0, 'rgba(80, 0, 0, 0.4)'); 
-      gradient.addColorStop(0.5, 'rgba(30, 0, 0, 0.7)');
+      gradient.addColorStop(0, 'rgba(40, 0, 0, 0.3)'); 
+      gradient.addColorStop(0.6, 'rgba(10, 0, 0, 0.8)');
       gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
-      ctx.strokeStyle = 'rgba(220, 38, 38, 0.5)';
-      ctx.fillStyle = 'rgba(255, 0, 0, 0.7)';
+      ctx.strokeStyle = 'rgba(220, 38, 38, 0.4)';
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.6)';
 
       particles.forEach(p => {
         p.x += p.vx;
@@ -60,7 +61,7 @@ const ChaosBackground: React.FC = () => {
 
             if (distance < 100) {
                 ctx.beginPath();
-                ctx.strokeStyle = `rgba(220, 38, 38, ${0.2 * (1 - distance / 100)})`;
+                ctx.strokeStyle = `rgba(220, 38, 38, ${0.15 * (1 - distance / 100)})`;
                 ctx.lineWidth = 0.5;
                 ctx.moveTo(p.x, p.y);
                 ctx.lineTo(p2.x, p2.y);
@@ -71,7 +72,7 @@ const ChaosBackground: React.FC = () => {
         if (Math.random() > 0.992) {
           ctx.beginPath();
           ctx.lineWidth = Math.random() * 2;
-          ctx.strokeStyle = `rgba(255, 0, 0, ${Math.random() * 0.4})`;
+          ctx.strokeStyle = `rgba(255, 0, 0, ${Math.random() * 0.3})`;
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(p.x + (Math.random() - 0.5) * 150, p.y + (Math.random() - 0.5) * 150);
           ctx.stroke();

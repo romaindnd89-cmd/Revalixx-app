@@ -52,8 +52,8 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 pt-16">
       
-      {/* Top Ambient Light - Deep red glow from top */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[60vh] bg-gradient-to-b from-red-600/15 to-transparent blur-[140px] pointer-events-none z-0"></div>
+      {/* Top Ambient Light - Deep red glow from top (Subtler) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[60vh] bg-gradient-to-b from-red-900/10 to-transparent blur-[120px] pointer-events-none z-0"></div>
 
       <div className="relative z-10 w-full max-w-6xl flex flex-col items-center animate-fade-in text-center">
         
@@ -66,23 +66,12 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
              <div className="h-[1px] w-12 md:w-32 bg-gradient-to-l from-transparent to-red-600"></div>
         </div>
 
-        {/* Logo Container with FIXED CIRCULAR AURA (NO MORE OVAL) */}
+        {/* Logo Container - AURA REMOVED to prevent oval artifact */}
         <div className="relative group cursor-pointer mb-12 flex items-center justify-center" onClick={() => setView('gallery')}>
-            
-            {/* PURE CIRCULAR RED AURA LAYERS - FIXED DIMENSIONS PREVENT OVALS */}
-            {/* 1. Large Outer Glow (Diffuse) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[900px] aspect-square bg-red-600/20 rounded-full blur-[160px] animate-aura-pulse pointer-events-none z-0"></div>
-            
-            {/* 2. Middle Glow (Medium Density) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] md:w-[600px] aspect-square bg-red-500/30 rounded-full blur-[100px] animate-breathe pointer-events-none z-0"></div>
-            
-            {/* 3. Inner Core Glow (Intense Center) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] md:w-[400px] aspect-square bg-red-600/40 rounded-full blur-[60px] animate-pulse pointer-events-none z-0"></div>
-            
             <img 
               src={REVALIXX_LOGO_URL} 
               alt="REVALIXX LOGO" 
-              className="relative z-10 w-80 md:w-[32rem] lg:w-[42rem] object-contain drop-shadow-[0_0_45px_rgba(220,38,38,0.8)] hover:scale-105 transition-transform duration-700 animate-dying-light"
+              className="relative z-10 w-80 md:w-[32rem] lg:w-[42rem] object-contain drop-shadow-[0_0_35px_rgba(220,38,38,0.6)] hover:scale-105 transition-transform duration-700 animate-dying-light"
             />
         </div>
 
