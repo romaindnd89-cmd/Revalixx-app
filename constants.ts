@@ -1,4 +1,4 @@
-import { PhotoItem, VideoItem, TourDate } from './types';
+import { PhotoItem, VideoItem, TourDate, ArtistProfile } from './types';
 
 // Using the uploaded image URL as the main logo
 export const REVALIXX_LOGO_URL = "https://i.postimg.cc/mkPJmVMC/1000000712.png";
@@ -42,5 +42,22 @@ export const DEFAULT_TOUR_DATES: TourDate[] = [
     city: 'LYON',
     event: 'DARKNESS RITUAL',
     active: true
+  }
+];
+
+export const DEFAULT_ARTISTS: ArtistProfile[] = [
+  {
+    id: 'alixx',
+    name: 'ALIXX',
+    role: 'CO-FOUNDER / DJ',
+    bio: 'Spécialiste de la Hard Techno industrielle aux kicks dévastateurs. Son style sombre et chirurgical définit l\'identité sonore de REVALIXX.',
+    imageUrl: 'https://images.unsplash.com/photo-1571266028243-e4733b0f0bb1?q=80&w=1000&auto=format&fit=crop'
+  },
+  {
+    id: 'revaxx',
+    name: 'DJ REVAXX',
+    role: 'CO-FOUNDER / DJ',
+    bio: 'Maître des percussions abrasives et des textures noise. DJ Revaxx fusionne l\'énergie brute de la rave avec une précision technique implacable.',
+    imageUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1000&auto=format&fit=crop'
   }
 ];

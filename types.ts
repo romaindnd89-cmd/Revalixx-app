@@ -19,4 +19,12 @@ export interface TourDate {
   active: boolean;
 }
 
+export interface ArtistProfile {
+  id: string;
+  name: string;
+  role: string;
+  bio: string;
+  imageUrl: string;
+}
+
 export type ViewState = 'home' | 'gallery' | 'videos' | 'bio';

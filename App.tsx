@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, Suspense, ReactNode, ErrorInfo, Component } from 'react';
+import React, { useState, useEffect, Suspense, ReactNode, ErrorInfo } from 'react';
 import Navbar from './components/Navbar';
 import ChaosBackground from './components/ChaosBackground';
 import Hero from './components/Hero';
@@ -9,8 +8,8 @@ import AdminModal from './components/AdminModal';
 import { ViewState } from './types';
 import { Lock, Unlock, AlertTriangle } from 'lucide-react';
 
-// Lazy load BioAI to prevent initial load crashes if SDK fails or process is undefined
-const BioAI = React.lazy(() => import('./components/BioAI'));
+// Lazy load ArtistsSection
+const ArtistsSection = React.lazy(() => import('./components/ArtistsSection'));
 
 interface ErrorBoundaryProps {
   children?: ReactNode;
@@ -21,10 +20,8 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-// Error Boundary to catch crashes and allow reset
-// Fix: Use Component explicitly and initialize state via class property to ensure proper TS detection
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  // Use public state property for better property discovery in TS
+// Fix: Use React.Component explicitly to ensure 'props' is properly inherited and recognized by the TypeScript compiler
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   public state: ErrorBoundaryState = {
     hasError: false,
     error: null
@@ -67,6 +64,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       );
     }
 
+    // Fix: Line 66 - Property 'props' is now correctly recognized as a member of ErrorBoundary
     return this.props.children;
   }
 }
@@ -76,7 +74,6 @@ const App: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
 
-  // Check login persistence on load
   useEffect(() => {
     try {
         const session = localStorage.getItem('revalixx_admin_session');
@@ -102,7 +99,6 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
         <div className="min-h-screen text-white selection:bg-red-600 selection:text-white relative">
-          {/* Red scanline effect */}
           <div className="scanline"></div>
           
           <ChaosBackground />
@@ -120,11 +116,11 @@ const App: React.FC = () => {
             {view === 'videos' && <VideoSection isAdmin={isAdmin} />}
             {view === 'bio' && (
                 <Suspense fallback={
-                    <div className="min-h-screen flex items-center justify-center text-red-600 tracking-widest animate-pulse">
-                        INITIALIZING AI CORE...
+                    <div className="min-h-screen flex items-center justify-center text-red-600 tracking-widest animate-pulse brand-font text-2xl">
+                        LOADING ARTISTS...
                     </div>
                 }>
-                    <BioAI />
+                    <ArtistsSection isAdmin={isAdmin} />
                 </Suspense>
             )}
           </main>
@@ -137,7 +133,6 @@ const App: React.FC = () => {
                     Hard Music Collective & Label
                 </p>
 
-                {/* Links Section - Only Instagram remains */}
                 <div className="flex space-x-12 mb-12">
                     <a href="https://www.instagram.com/revalixxoff" target="_blank" className="text-gray-400 hover:text-white transition-colors text-sm tracking-widest uppercase hover:text-red-600 font-bold">Instagram</a>
                 </div>
@@ -147,7 +142,6 @@ const App: React.FC = () => {
                     <p>DEVELOPED FOR ALIXX & DJ REVAXX</p>
                 </div>
                 
-                {/* Admin Toggle in Footer */}
                 <div className="mt-8">
                     {isAdmin ? (
                         <button 
