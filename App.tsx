@@ -6,7 +6,7 @@ import Gallery from './components/Gallery';
 import VideoSection from './components/VideoSection';
 import AdminModal from './components/AdminModal';
 import { ViewState } from './types';
-import { Lock, Unlock, AlertTriangle } from 'lucide-react';
+import { Lock, Unlock, TriangleAlert } from 'lucide-react';
 
 // Lazy load ArtistsSection
 const ArtistsSection = React.lazy(() => import('./components/ArtistsSection'));
@@ -39,7 +39,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black text-red-600 font-mono p-4">
           <div className="text-center max-w-lg border border-red-900/50 p-8 bg-neutral-900/50 backdrop-blur-md rounded-lg shadow-[0_0_50px_rgba(220,38,38,0.2)]">
-            <AlertTriangle className="w-16 h-16 mx-auto mb-6 text-red-500 animate-pulse" />
+            <TriangleAlert className="w-16 h-16 mx-auto mb-6 text-red-500 animate-pulse" />
             <h1 className="text-4xl mb-4 font-bold tracking-widest uppercase">System Failure</h1>
             <p className="text-gray-400 mb-8 text-sm tracking-wider">
               CRITICAL ERROR DETECTED. THE VOID IS UNSTABLE.

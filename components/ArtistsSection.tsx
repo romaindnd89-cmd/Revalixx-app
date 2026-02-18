@@ -27,12 +27,16 @@ const ArtistsSection: React.FC<ArtistsSectionProps> = ({ isAdmin }) => {
   };
 
   useEffect(() => {
+    // Si on est en mode édition, on coupe la synchro temps réel pour ne pas écraser le travail en cours
+    if (editMode) return;
+
     fetchArtists();
     const sub = supabase.channel('artists_channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'artists' }, fetchArtists)
       .subscribe();
+      
     return () => { sub.unsubscribe(); };
-  }, []);
+  }, [editMode]);
 
   const handleUpdate = (id: string, field: keyof ArtistProfile, value: string) => {
     const updated = artists.map(a => a.id === id ? { ...a, [field]: value } : a);
