@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Play, Loader } from 'lucide-react';
+import { Trash2, Plus, Play, Loader, Instagram } from 'lucide-react';
 import { VideoItem } from '../types';
 import { supabase } from '../supabaseClient';
 
@@ -51,6 +51,13 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
     return (match && match[2].length === 11) ? match[2] : null;
   };
 
+  const getInstagramId = (url: string) => {
+    // Supporte /p/ (post), /reel/ (reels), /tv/ (IGTV)
+    const regExp = /(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)\/?/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+  };
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUrl) return;
@@ -96,26 +103,27 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
 
       {isAdmin && isAdding && (
         <form onSubmit={handleAdd} className="mb-10 bg-neutral-900 border border-red-900/50 p-6 rounded-lg animate-slide-down">
-          <h3 className="text-xl text-red-500 mb-4 font-bold uppercase brand-font">Ajouter une vidéo (YouTube)</h3>
+          <h3 className="text-xl text-red-500 mb-4 font-bold uppercase brand-font">Ajouter une vidéo</h3>
+          <p className="text-xs text-gray-500 mb-4 uppercase tracking-wider">Supporte: YouTube & Instagram (Reels/Posts)</p>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-gray-400 text-sm mb-1">Lien YouTube</label>
+              <label className="block text-gray-400 text-sm mb-1">Lien (URL)</label>
               <input 
                 type="text" 
                 value={newUrl}
                 onChange={(e) => setNewUrl(e.target.value)}
-                placeholder="https://youtube.com/watch?v=..."
+                placeholder="https://youtube.com/... ou https://instagram.com/reel/..."
                 required
                 className="w-full bg-black border border-gray-700 p-3 text-white focus:border-red-600 outline-none font-mono"
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-sm mb-1">Titre du Set</label>
+              <label className="block text-gray-400 text-sm mb-1">Titre</label>
               <input 
                 type="text" 
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="Hard Techno Mix 2024..."
+                placeholder="Ex: Closing Set 2024..."
                 className="w-full bg-black border border-gray-700 p-3 text-white focus:border-red-600 outline-none"
               />
             </div>
@@ -134,9 +142,11 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {videos.map((video) => {
             const ytId = getYoutubeId(video.url);
+            const instaId = getInstagramId(video.url);
+
             return (
               <div key={video.id} className="relative bg-neutral-900 border border-gray-800 p-2 group hover:border-red-600 transition-colors">
-                <div className="aspect-video w-full bg-black">
+                <div className="aspect-video w-full bg-black overflow-hidden relative">
                   {ytId ? (
                     <iframe 
                       width="100%" 
@@ -147,19 +157,32 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                       allowFullScreen
                     ></iframe>
+                  ) : instaId ? (
+                     <iframe 
+                      width="100%" 
+                      height="100%" 
+                      src={`https://www.instagram.com/p/${instaId}/embed`} 
+                      title={video.title}
+                      frameBorder="0" 
+                      allowFullScreen
+                      className="bg-black"
+                    ></iframe>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-red-600">
+                    <div className="w-full h-full flex items-center justify-center text-red-600 flex-col gap-2">
                       <Play size={48} />
-                      <span className="ml-2">Lien invalide</span>
+                      <span className="text-sm font-mono tracking-widest">SIGNAL PERDU / LIEN INVALIDE</span>
                     </div>
                   )}
                 </div>
                 <div className="flex justify-between items-center p-4">
-                  <h3 className="brand-font text-xl md:text-2xl text-white truncate uppercase">{video.title}</h3>
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    {instaId ? <Instagram size={18} className="text-red-500 shrink-0" /> : <Play size={18} className="text-red-500 shrink-0" />}
+                    <h3 className="brand-font text-xl md:text-2xl text-white truncate uppercase">{video.title}</h3>
+                  </div>
                   {isAdmin && (
                     <button 
                       onClick={() => handleDelete(video.id)}
-                      className="text-gray-500 hover:text-red-600 transition-colors"
+                      className="text-gray-500 hover:text-red-600 transition-colors ml-4 shrink-0"
                     >
                       <Trash2 size={20} />
                     </button>
@@ -171,7 +194,7 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
            {videos.length === 0 && (
             <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-500">
               <Play size={48} className="mb-4" />
-              <p className="text-xl">Aucune vidéo disponible.</p>
+              <p className="text-xl">Aucune transmission vidéo.</p>
             </div>
           )}
         </div>
