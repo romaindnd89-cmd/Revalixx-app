@@ -50,8 +50,8 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 pt-16">
       
-      {/* Top Ambient Light - Deep red glow from top (Subtler) */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[60vh] bg-gradient-to-b from-red-900/10 to-transparent blur-[120px] pointer-events-none z-0"></div>
+      {/* Top Ambient Light - Intensified */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[70vh] bg-gradient-to-b from-red-600/20 to-transparent blur-[120px] pointer-events-none z-0"></div>
 
       <div className="relative z-10 w-full max-w-6xl flex flex-col items-center animate-fade-in text-center">
         
@@ -64,12 +64,15 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
              <div className="h-[1px] w-12 md:w-32 bg-gradient-to-l from-transparent to-red-600"></div>
         </div>
 
-        {/* Logo Container - AURA REMOVED to prevent oval artifact */}
+        {/* Logo Container - Enhanced Aura */}
         <div className="relative group cursor-pointer mb-12 flex items-center justify-center" onClick={() => setView('gallery')}>
+            {/* Added Backing Glow */}
+            <div className="absolute inset-0 bg-red-600/30 blur-[80px] rounded-full scale-75 animate-pulse"></div>
+            
             <img 
               src={REVALIXX_LOGO_URL} 
               alt="REVALIXX LOGO" 
-              className="relative z-10 w-80 md:w-[32rem] lg:w-[42rem] object-contain drop-shadow-[0_0_35px_rgba(220,38,38,0.6)] hover:scale-105 transition-transform duration-700 animate-dying-light"
+              className="relative z-10 w-80 md:w-[32rem] lg:w-[42rem] object-contain drop-shadow-[0_0_60px_rgba(220,38,38,0.9)] hover:scale-105 transition-transform duration-700 animate-dying-light"
             />
         </div>
 
@@ -102,7 +105,7 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
                 className="flex-1 border border-red-900/50 bg-black/40 backdrop-blur-sm py-3 px-4 hover:border-red-500 transition-colors duration-300 group"
             >
                 <span className="brand-font text-sm md:text-base text-gray-400 group-hover:text-red-500 tracking-[0.15em] uppercase">
-                    Transmissions
+                    Transmissions Videos
                 </span>
             </button>
         </div>
