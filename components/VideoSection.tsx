@@ -139,55 +139,85 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
            <Loader className="animate-spin w-12 h-12" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {videos.map((video) => {
             const ytId = getYoutubeId(video.url);
             const instaId = getInstagramId(video.url);
+            
+            // Logique de classe pour la mise en page
+            // Si c'est Instagram, on centre le contenu dans la case
+            const containerClass = instaId 
+                ? "bg-neutral-900/50 border border-gray-800 p-4 flex flex-col items-center" 
+                : "relative bg-neutral-900 border border-gray-800 p-2 group hover:border-red-600 transition-colors";
 
             return (
-              <div key={video.id} className="relative bg-neutral-900 border border-gray-800 p-2 group hover:border-red-600 transition-colors">
-                <div className="aspect-video w-full bg-black overflow-hidden relative">
-                  {ytId ? (
-                    <iframe 
-                      width="100%" 
-                      height="100%" 
-                      src={`https://www.youtube.com/embed/${ytId}`} 
-                      title={video.title}
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowFullScreen
-                    ></iframe>
-                  ) : instaId ? (
-                     <iframe 
-                      width="100%" 
-                      height="100%" 
-                      src={`https://www.instagram.com/p/${instaId}/embed`} 
-                      title={video.title}
-                      frameBorder="0" 
-                      allowFullScreen
-                      className="bg-black"
-                    ></iframe>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-red-600 flex-col gap-2">
+              <div key={video.id} className={`${containerClass} animate-fade-in shadow-lg`}>
+                
+                {ytId ? (
+                   // --- YOUTUBE LAYOUT (16:9) ---
+                   <>
+                    <div className="aspect-video w-full bg-black overflow-hidden relative">
+                        <iframe 
+                          width="100%" 
+                          height="100%" 
+                          src={`https://www.youtube.com/embed/${ytId}`} 
+                          title={video.title}
+                          frameBorder="0" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                        ></iframe>
+                    </div>
+                    <div className="flex justify-between items-center p-4 w-full">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <Play size={18} className="text-red-500 shrink-0" />
+                        <h3 className="brand-font text-xl md:text-2xl text-white truncate uppercase">{video.title}</h3>
+                      </div>
+                      {isAdmin && (
+                        <button onClick={() => handleDelete(video.id)} className="text-gray-500 hover:text-red-600 transition-colors ml-4 shrink-0">
+                          <Trash2 size={20} />
+                        </button>
+                      )}
+                    </div>
+                   </>
+                ) : instaId ? (
+                   // --- INSTAGRAM LAYOUT (9:16 Vertical) ---
+                   <>
+                    {/* Conteneur format téléphone vertical */}
+                    <div className="w-full max-w-[340px] aspect-[9/16] bg-black overflow-hidden relative shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-gray-900 rounded-sm">
+                        <iframe 
+                          width="100%" 
+                          height="100%" 
+                          /* Note: pas de /captioned/ ici pour réduire le texte, et scrolling="no" */
+                          src={`https://www.instagram.com/p/${instaId}/embed/`} 
+                          title={video.title}
+                          frameBorder="0" 
+                          allowFullScreen
+                          className="bg-black"
+                          scrolling="no"
+                          style={{ overflow: 'hidden' }} 
+                        ></iframe>
+                    </div>
+                    <div className="flex justify-between items-center pt-4 w-full max-w-[340px]">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <Instagram size={16} className="text-red-500 shrink-0" />
+                        <h3 className="brand-font text-lg text-gray-300 truncate uppercase">{video.title}</h3>
+                      </div>
+                      {isAdmin && (
+                        <button onClick={() => handleDelete(video.id)} className="text-gray-500 hover:text-red-600 transition-colors ml-2 shrink-0">
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                   </>
+                ) : (
+                    // --- ERROR STATE ---
+                    <div className="aspect-video w-full bg-black flex items-center justify-center text-red-600 flex-col gap-2">
                       <Play size={48} />
                       <span className="text-sm font-mono tracking-widest">SIGNAL PERDU / LIEN INVALIDE</span>
+                      {isAdmin && <button onClick={() => handleDelete(video.id)} className="mt-2 text-white"><Trash2/></button>}
                     </div>
-                  )}
-                </div>
-                <div className="flex justify-between items-center p-4">
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    {instaId ? <Instagram size={18} className="text-red-500 shrink-0" /> : <Play size={18} className="text-red-500 shrink-0" />}
-                    <h3 className="brand-font text-xl md:text-2xl text-white truncate uppercase">{video.title}</h3>
-                  </div>
-                  {isAdmin && (
-                    <button 
-                      onClick={() => handleDelete(video.id)}
-                      className="text-gray-500 hover:text-red-600 transition-colors ml-4 shrink-0"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  )}
-                </div>
+                )}
+                
               </div>
             );
           })}
