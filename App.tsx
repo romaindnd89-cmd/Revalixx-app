@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, ReactNode, ErrorInfo } from 'react';
+import React, { Component, useState, useEffect, Suspense, ReactNode, ErrorInfo } from 'react';
 import Navbar from './components/Navbar';
 import ChaosBackground from './components/ChaosBackground';
 import Hero from './components/Hero';
@@ -20,17 +20,11 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  public override props: ErrorBoundaryProps;
-
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.props = props;
-    this.state = {
-      hasError: false,
-      error: null
-    };
-  }
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  state: ErrorBoundaryState = {
+    hasError: false,
+    error: null
+  };
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };

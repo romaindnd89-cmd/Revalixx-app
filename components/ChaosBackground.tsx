@@ -32,12 +32,11 @@ const ChaosBackground: React.FC = () => {
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
       
-      // REMOVED RADIAL GRADIENT to completely eliminate the "oval" effect.
-      // Using a very subtle linear gradient (almost black) instead.
-      const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, '#050000'); // Very dark red/black at top
-      gradient.addColorStop(1, '#000000'); // Pure black at bottom
-      
+      // Much darker gradient to avoid the central "spotlight/oval" effect
+      const gradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width);
+      gradient.addColorStop(0, 'rgba(40, 0, 0, 0.3)'); 
+      gradient.addColorStop(0.6, 'rgba(10, 0, 0, 0.8)');
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 

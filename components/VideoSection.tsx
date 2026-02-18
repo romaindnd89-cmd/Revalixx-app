@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Play } from 'lucide-react';
+import { Trash2, Plus, Play, Loader } from 'lucide-react';
 import { VideoItem } from '../types';
-import { DEFAULT_VIDEOS } from '../constants';
-import { db } from '../firebase';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 
 interface VideoSectionProps {
   isAdmin: boolean;
@@ -16,23 +14,35 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchVideos = async () => {
     try {
-        const q = query(collection(db, 'videos'), orderBy('timestamp', 'desc'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as VideoItem));
-            setVideos(items);
-            setLoading(false);
-        }, (err) => {
-            console.error(err);
-            setVideos([]);
-            setLoading(false);
-        });
-        return () => unsubscribe();
-    } catch (e) {
-        setVideos(DEFAULT_VIDEOS);
-        setLoading(false);
+      const { data, error } = await supabase
+        .from('videos')
+        .select('*')
+        .order('timestamp', { ascending: false });
+      
+      if (error) throw error;
+      if (data) setVideos(data);
+    } catch (error) {
+      console.error('Error fetching videos:', error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchVideos();
+
+    const subscription = supabase
+      .channel('videos_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'videos' }, (payload) => {
+        fetchVideos();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const getYoutubeId = (url: string) => {
@@ -45,28 +55,28 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
     e.preventDefault();
     if (!newUrl) return;
 
-    try {
-        await addDoc(collection(db, 'videos'), {
-          url: newUrl,
-          title: newTitle || 'NO TITLE',
-          timestamp: Date.now(),
-        });
+    const newItem = {
+      id: Date.now().toString(),
+      url: newUrl,
+      title: newTitle || 'NO TITLE',
+      timestamp: Date.now(),
+    };
 
-        setNewUrl('');
-        setNewTitle('');
-        setIsAdding(false);
-    } catch (e) {
-        alert("Erreur lors de l'ajout de la vidéo");
+    const { error } = await supabase.from('videos').insert([newItem]);
+
+    if (!error) {
+      setNewUrl('');
+      setNewTitle('');
+      setIsAdding(false);
+    } else {
+      alert("Erreur lors de l'ajout");
     }
   };
 
   const handleDelete = async (id: string) => {
     if (confirm('Supprimer cette vidéo ?')) {
-      try {
-        await deleteDoc(doc(db, 'videos', id));
-      } catch (e) {
-        console.error(e);
-      }
+      const { error } = await supabase.from('videos').delete().eq('id', id);
+      if (error) alert("Erreur lors de la suppression");
     }
   };
 
@@ -117,52 +127,54 @@ const VideoSection: React.FC<VideoSectionProps> = ({ isAdmin }) => {
       )}
 
       {loading ? (
-         <div className="text-center text-red-600 animate-pulse mt-20 text-xl tracking-widest">CONNECTING TO FEED...</div>
+        <div className="flex justify-center items-center h-64 text-red-600">
+           <Loader className="animate-spin w-12 h-12" />
+        </div>
       ) : (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {videos.map((video) => {
-          const ytId = getYoutubeId(video.url);
-          return (
-            <div key={video.id} className="relative bg-neutral-900 border border-gray-800 p-2 group hover:border-red-600 transition-colors">
-              <div className="aspect-video w-full bg-black">
-                {ytId ? (
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src={`https://www.youtube.com/embed/${ytId}`} 
-                    title={video.title}
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowFullScreen
-                  ></iframe>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-red-600">
-                    <Play size={48} />
-                    <span className="ml-2">Lien invalide</span>
-                  </div>
-                )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {videos.map((video) => {
+            const ytId = getYoutubeId(video.url);
+            return (
+              <div key={video.id} className="relative bg-neutral-900 border border-gray-800 p-2 group hover:border-red-600 transition-colors">
+                <div className="aspect-video w-full bg-black">
+                  {ytId ? (
+                    <iframe 
+                      width="100%" 
+                      height="100%" 
+                      src={`https://www.youtube.com/embed/${ytId}`} 
+                      title={video.title}
+                      frameBorder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowFullScreen
+                    ></iframe>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-red-600">
+                      <Play size={48} />
+                      <span className="ml-2">Lien invalide</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-between items-center p-4">
+                  <h3 className="brand-font text-xl md:text-2xl text-white truncate uppercase">{video.title}</h3>
+                  {isAdmin && (
+                    <button 
+                      onClick={() => handleDelete(video.id)}
+                      className="text-gray-500 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="flex justify-between items-center p-4">
-                <h3 className="brand-font text-xl md:text-2xl text-white truncate uppercase">{video.title}</h3>
-                {isAdmin && (
-                  <button 
-                    onClick={() => handleDelete(video.id)}
-                    className="text-gray-500 hover:text-red-600 transition-colors"
-                  >
-                    <Trash2 size={20} />
-                  </button>
-                )}
-              </div>
+            );
+          })}
+           {videos.length === 0 && (
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-500">
+              <Play size={48} className="mb-4" />
+              <p className="text-xl">Aucune vidéo disponible.</p>
             </div>
-          );
-        })}
-         {videos.length === 0 && (
-          <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-500">
-            <Play size={48} className="mb-4" />
-            <p className="text-xl">Aucune vidéo disponible.</p>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
       )}
     </div>
   );

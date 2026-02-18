@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArtistProfile } from '../types';
 import { DEFAULT_ARTISTS } from '../constants';
 import { Save, User, Image as ImageIcon, Type } from 'lucide-react';
-import { db } from '../firebase';
-import { collection, onSnapshot, doc, updateDoc, setDoc } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 
 interface ArtistsSectionProps {
   isAdmin: boolean;
@@ -12,35 +11,27 @@ interface ArtistsSectionProps {
 const ArtistsSection: React.FC<ArtistsSectionProps> = ({ isAdmin }) => {
   const [artists, setArtists] = useState<ArtistProfile[]>([]);
   const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(true);
+
+  // Charger les artistes depuis Supabase, sinon fallback
+  const fetchArtists = async () => {
+    const { data, error } = await supabase.from('artists').select('*');
+    if (!error && data && data.length > 0) {
+      setArtists(data);
+    } else if (data && data.length === 0) {
+       // Si DB vide, on utilise les défauts
+       setArtists(DEFAULT_ARTISTS);
+    } else {
+        // Fallback en cas d'erreur
+        setArtists(DEFAULT_ARTISTS);
+    }
+  };
 
   useEffect(() => {
-    try {
-      // Les artistes sont une collection fixe pour ce cas d'usage, on écoute les changements
-      const unsubscribe = onSnapshot(collection(db, 'artists'), (snapshot) => {
-        const items = snapshot.docs.map(d => d.data() as ArtistProfile);
-        
-        // Si la DB est vide (premier lancement), on peut proposer les défauts localement
-        // ou l'utilisateur Admin devra les créer.
-        if (items.length > 0) {
-            // Tri pour garder l'ordre (facultatif si IDs connus)
-            setArtists(items.sort((a,b) => a.id.localeCompare(b.id)));
-        } else {
-            // Optionnel: Initialiser la DB avec les défauts si vide (pour le premier run)
-            // Mais ici on laisse vide ou on fallback
-            setArtists([]);
-        }
-        setLoading(false);
-      }, (err) => {
-        console.error(err);
-        setArtists(DEFAULT_ARTISTS); // Fallback si pas de DB
-        setLoading(false);
-      });
-      return () => unsubscribe();
-    } catch (e) {
-      setArtists(DEFAULT_ARTISTS);
-      setLoading(false);
-    }
+    fetchArtists();
+    const sub = supabase.channel('artists_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'artists' }, fetchArtists)
+      .subscribe();
+    return () => { sub.unsubscribe(); };
   }, []);
 
   const handleUpdate = (id: string, field: keyof ArtistProfile, value: string) => {
@@ -49,41 +40,13 @@ const ArtistsSection: React.FC<ArtistsSectionProps> = ({ isAdmin }) => {
   };
 
   const saveArtists = async () => {
-    try {
-        // Sauvegarde chaque artiste dans son document respectif
-        const promises = artists.map(artist => {
-            // On utilise l'ID de l'artiste comme ID de document pour simplifier
-            return setDoc(doc(db, 'artists', artist.id), artist);
-        });
-        await Promise.all(promises);
-        setEditMode(false);
-    } catch (e) {
-        alert("Erreur lors de la sauvegarde.");
-        console.error(e);
+    // Upsert (update or insert) each artist
+    for (const artist of artists) {
+        const { error } = await supabase.from('artists').upsert(artist);
+        if (error) console.error("Error saving artist", artist.name, error);
     }
+    setEditMode(false);
   };
-
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-red-600">LOADING DATA...</div>;
-
-  // Si DB vide et Admin, afficher un bouton pour initialiser
-  if (artists.length === 0 && isAdmin) {
-     return (
-        <div className="min-h-screen flex flex-col items-center justify-center text-white gap-4">
-            <p>Aucun artiste dans la base de données.</p>
-            <button 
-                onClick={() => {
-                    setArtists(DEFAULT_ARTISTS);
-                    // Trigger immédiat de save pour peupler la DB
-                    const promises = DEFAULT_ARTISTS.map(a => setDoc(doc(db, 'artists', a.id), a));
-                    Promise.all(promises).then(() => window.location.reload());
-                }}
-                className="bg-red-600 px-4 py-2 font-bold"
-            >
-                INITIALISER AVEC LES DÉFAUTS
-            </button>
-        </div>
-     )
-  }
 
   return (
     <div className="pt-24 pb-12 px-4 max-w-6xl mx-auto min-h-screen">

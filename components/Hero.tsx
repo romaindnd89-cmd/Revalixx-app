@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { REVALIXX_LOGO_URL, DEFAULT_TOUR_DATES } from '../constants';
+import { REVALIXX_LOGO_URL } from '../constants';
 import { TourDate } from '../types';
 import { Plus, Trash2 } from 'lucide-react';
-import { db } from '../firebase';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 
 interface HeroProps {
   setView: (v: any) => void;
@@ -14,60 +13,46 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
   const [tourDates, setTourDates] = useState<TourDate[]>([]);
   const [newCity, setNewCity] = useState('');
   const [newEvent, setNewEvent] = useState('');
-  const [loading, setLoading] = useState(true);
 
-  // Connexion temps réel à Firebase
+  const fetchDates = async () => {
+    const { data, error } = await supabase.from('tour_dates').select('*');
+    if (!error && data) setTourDates(data);
+  };
+
   useEffect(() => {
-    try {
-      const q = query(collection(db, 'tour_dates'), orderBy('id', 'desc')); // On peut trier par ID ou ajouter un timestamp
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const dates = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TourDate));
-        setTourDates(dates.length > 0 ? dates : []);
-        setLoading(false);
-      }, (error) => {
-        console.error("Erreur Firebase (Dates):", error);
-        // Fallback pour éviter l'écran blanc si pas de config
-        setTourDates(DEFAULT_TOUR_DATES); 
-        setLoading(false);
-      });
-      return () => unsubscribe();
-    } catch (e) {
-      console.log("Firebase non configuré");
-      setTourDates(DEFAULT_TOUR_DATES);
-      setLoading(false);
-    }
+    fetchDates();
+    const sub = supabase.channel('dates_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tour_dates' }, fetchDates)
+      .subscribe();
+    return () => { sub.unsubscribe(); };
   }, []);
 
   const handleAddDate = async () => {
     if (!newCity || !newEvent) return;
-    try {
-      await addDoc(collection(db, 'tour_dates'), {
-        city: newCity.toUpperCase(),
-        event: newEvent.toUpperCase(),
-        active: true,
-        // Astuce: utiliser Date.now() comme ID pour le tri si besoin, ou laisser Firestore gérer
-        timestamp: Date.now() 
-      });
+    const newDate = {
+      id: Date.now().toString(),
+      city: newCity.toUpperCase(),
+      event: newEvent.toUpperCase(),
+      active: true
+    };
+    
+    const { error } = await supabase.from('tour_dates').insert([newDate]);
+    if (!error) {
       setNewCity('');
       setNewEvent('');
-    } catch (error) {
-      alert("Erreur: Impossible d'ajouter (Vérifiez votre config Firebase)");
     }
   };
 
   const handleDeleteDate = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'tour_dates', id));
-    } catch (error) {
-      console.error("Error deleting date", error);
-    }
+    await supabase.from('tour_dates').delete().eq('id', id);
   };
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 pt-16">
       
-      {/* Top Ambient Light REMOVED to eliminate oval glow */}
-      
+      {/* Top Ambient Light - Deep red glow from top (Subtler) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[60vh] bg-gradient-to-b from-red-900/10 to-transparent blur-[120px] pointer-events-none z-0"></div>
+
       <div className="relative z-10 w-full max-w-6xl flex flex-col items-center animate-fade-in text-center">
         
         {/* Top Text: UNDERGROUND RESISTANCE */}
@@ -79,7 +64,7 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
              <div className="h-[1px] w-12 md:w-32 bg-gradient-to-l from-transparent to-red-600"></div>
         </div>
 
-        {/* Logo Container - Clean, no background aura */}
+        {/* Logo Container - AURA REMOVED to prevent oval artifact */}
         <div className="relative group cursor-pointer mb-12 flex items-center justify-center" onClick={() => setView('gallery')}>
             <img 
               src={REVALIXX_LOGO_URL} 
@@ -123,11 +108,9 @@ const Hero: React.FC<HeroProps> = ({ setView, isAdmin }) => {
         </div>
 
         {/* Dynamic Tour Dates */}
-        <div className="flex flex-col items-center gap-2 mb-8 relative z-10 w-full min-h-[50px]">
-            {loading ? (
-                <div className="text-red-900 animate-pulse text-xs tracking-widest">LOADING TRANSMISSIONS...</div>
-            ) : tourDates.map((date) => (
-                <div key={date.id} className="flex items-center gap-4 text-xs tracking-[0.2em] text-gray-600 font-mono group animate-fade-in">
+        <div className="flex flex-col items-center gap-2 mb-8 relative z-10 w-full">
+            {tourDates.map((date) => (
+                <div key={date.id} className="flex items-center gap-4 text-xs tracking-[0.2em] text-gray-600 font-mono group">
                     <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_red]"></span>
                     <span className="group-hover:text-red-400 transition-colors font-bold uppercase tracking-[0.2em]">NEXT: {date.city} — {date.event}</span>
                     {isAdmin && (
